@@ -1,6 +1,10 @@
 // This file is part of threading-support. It is subject to the license terms in the COPYRIGHT file found in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/threading-support/master/COPYRIGHT. No part of threading-support, including this file, may be copied, modified, propagated, or distributed except according to the terms contained in the COPYRIGHT file.
 // Copyright © 2016 The developers of threading-support. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/threading-support/master/COPYRIGHT.
 
+
+extern crate libc;
+use libc::c_ushort;
+#[cfg(windows)] extern crate kernel32;
 use std::thread;
 use std::thread::JoinHandle;
 use std::thread::Builder;
@@ -28,12 +32,65 @@ pub fn sleepForNanoseconds(nanoseconds: u32)
 	thread::sleep(duration);
 }
 
-pub fn spawnThread<F, T>(name: String, stackSize: usize, f: F) -> JoinHandle<T>
-	where F: FnOnce() -> T, F: Send + 'static, T: Send + 'static,
+pub fn spawn_thread<F, T>(name: String, stackSize: usize, f: F) -> JoinHandle<T>
+	where F: FnOnce(u16) -> T, F: Send + 'static, T: Send + 'static
 {
 	return Builder::new()
 		.name(name)
 		.stack_size(stackSize)
-		.spawn(f)
+		.spawn(move ||
+		{
+			let relative_thread_id = unsafe { set_relative_thread_id() } as u16;
+			f(relative_thread_id)
+		})
 		.unwrap();
+}
+
+extern
+{
+	#[inline(always)]
+	pub fn current_maximum_threads_with_relative_thread_ids() -> c_ushort;
+	
+	pub fn set_relative_thread_id() -> c_ushort;
+	
+	#[inline(always)]
+	pub fn get_relative_thread_id() -> c_ushort;
+}
+
+/// pthread_t is unsigned on all platforms apart from Android... go figure.
+/// On musl, pthread_t contains a reference to tid; if 0, refers to current thread (pthread_t->tid)
+#[cfg(all(unix, not(target_os = "android")))]
+#[inline(always)]
+pub fn current_thread_id() -> usize
+{
+	unsafe { libc::pthread_self() as usize }
+}
+
+// On Android, we really should use   extern pid_t __pthread_gettid(pthread_t thid)
+#[cfg(target_os = "android")]
+#[inline(always)]
+pub fn current_thread_id() -> usize
+{
+	let thread_signed_id = unsafe { libc::pthread_self() };
+	if thread_signed_id >= 0
+	{
+		thread_signed_id as usize + 2_147_483_648usize
+	}
+	(thread_signed_id + 2_147_483_648) as usize
+}
+
+#[cfg(windows)]
+#[inline(always)]
+pub fn current_thread_id() -> usize
+{
+	unsafe { kernel32::GetCurrentThreadId() as usize }
+}
+
+#[test]
+fn test()
+{
+	spawn_thread(String::from("Example"), UsefulStackSize, move |relative_thread_id|
+	{
+		println!("{}", relative_thread_id);
+	}).join().unwrap();
 }
