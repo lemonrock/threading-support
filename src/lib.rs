@@ -66,7 +66,7 @@ pub fn current_thread_id() -> usize
 	unsafe { libc::pthread_self() as usize }
 }
 
-// On Android, we really should use   extern pid_t __pthread_gettid(pthread_t thid)
+// On Android, we really should use the public pthread_gettid_np() function...
 #[cfg(target_os = "android")]
 #[inline(always)]
 pub fn current_thread_id() -> usize
