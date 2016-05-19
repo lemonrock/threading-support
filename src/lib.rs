@@ -57,34 +57,34 @@ extern
 	pub fn lemonrock_threading_support_setRelativeThreadId() -> c_ushort;
 }
 
-/// pthread_t is unsigned on all platforms apart from Android... go figure.
-/// On musl, pthread_t contains a reference to tid; if 0, refers to current thread (pthread_t->tid)
-#[cfg(all(unix, not(target_os = "android")))]
-#[inline(always)]
-pub fn current_thread_id() -> usize
-{
-	unsafe { libc::pthread_self() as usize }
-}
-
-// On Android, we really should use the public pthread_gettid_np() function...
-#[cfg(target_os = "android")]
-#[inline(always)]
-pub fn current_thread_id() -> usize
-{
-	let thread_signed_id = unsafe { libc::pthread_self() };
-	if thread_signed_id >= 0
-	{
-		thread_signed_id as usize + 2_147_483_648usize
-	}
-	(thread_signed_id + 2_147_483_648) as usize
-}
-
-#[cfg(windows)]
-#[inline(always)]
-pub fn current_thread_id() -> usize
-{
-	unsafe { kernel32::GetCurrentThreadId() as usize }
-}
+// /// pthread_t is unsigned on all platforms apart from Android... go figure.
+// /// On musl, pthread_t contains a reference to tid; if 0, refers to current thread (pthread_t->tid)
+// #[cfg(all(unix, not(target_os = "android")))]
+// #[inline(always)]
+// pub fn current_thread_id() -> usize
+// {
+// 	unsafe { libc::pthread_self() as usize }
+// }
+//
+// // On Android, we really should use the public pthread_gettid_np() function...
+// #[cfg(target_os = "android")]
+// #[inline(always)]
+// pub fn current_thread_id() -> usize
+// {
+// 	let thread_signed_id = unsafe { libc::pthread_self() };
+// 	if thread_signed_id >= 0
+// 	{
+// 		thread_signed_id as usize + 2_147_483_648usize
+// 	}
+// 	(thread_signed_id + 2_147_483_648) as usize
+// }
+//
+// #[cfg(windows)]
+// #[inline(always)]
+// pub fn current_thread_id() -> usize
+// {
+// 	unsafe { kernel32::GetCurrentThreadId() as usize }
+// }
 
 #[test]
 fn test()
