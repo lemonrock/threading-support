@@ -12,13 +12,13 @@ use std::time::Duration;
 
 pub const UsefulStackSize: usize = 65536;
 
-pub fn sleepForSeconds(seconds: u64)
+pub fn sleep_for_seconds(seconds: u64)
 {
 	let duration = Duration::new(seconds, 0);
 	thread::sleep(duration);
 }
 
-pub fn sleepForMilliseconds(milliseconds: u64)
+pub fn sleep_for_milliseconds(milliseconds: u64)
 {
 	let seconds = milliseconds / 1000;
 	let nanoseconds = (milliseconds % 1000) * 1_000_000;
@@ -26,7 +26,7 @@ pub fn sleepForMilliseconds(milliseconds: u64)
 	thread::sleep(duration);
 }
 
-pub fn sleepForNanoseconds(nanoseconds: u32)
+pub fn sleep_for_nanoseconds(nanoseconds: u32)
 {
 	let duration = Duration::new(0, nanoseconds);
 	thread::sleep(duration);
