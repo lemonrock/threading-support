@@ -5,7 +5,7 @@
 extern crate libc;
 use libc::c_ushort;
 #[cfg(windows)] extern crate kernel32;
-use std::thread;
+use std::thread::sleep;
 use std::thread::JoinHandle;
 use std::thread::Builder;
 use std::time::Duration;
@@ -15,7 +15,7 @@ pub const UsefulStackSize: usize = 65536;
 pub fn sleep_for_seconds(seconds: u64)
 {
 	let duration = Duration::new(seconds, 0);
-	thread::sleep(duration);
+	sleep(duration);
 }
 
 pub fn sleep_for_milliseconds(milliseconds: u64)
@@ -23,13 +23,13 @@ pub fn sleep_for_milliseconds(milliseconds: u64)
 	let seconds = milliseconds / 1000;
 	let nanoseconds = (milliseconds % 1000) * 1_000_000;
 	let duration = Duration::new(seconds, nanoseconds as u32);
-	thread::sleep(duration);
+	sleep(duration);
 }
 
 pub fn sleep_for_nanoseconds(nanoseconds: u32)
 {
 	let duration = Duration::new(0, nanoseconds);
-	thread::sleep(duration);
+	sleep(duration);
 }
 
 pub fn spawn_thread<F, T>(name: String, stackSize: usize, f: F) -> JoinHandle<T>
