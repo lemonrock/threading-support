@@ -40,7 +40,7 @@ pub fn spawn_thread<F, T>(name: String, stackSize: usize, f: F) -> JoinHandle<T>
 		.stack_size(stackSize)
 		.spawn(move ||
 		{
-			let relative_thread_id = unsafe { set_relative_thread_id() } as u16;
+			let relative_thread_id = unsafe { lemonrock_threading_support_setRelativeThreadId() } as u16;
 			f(relative_thread_id)
 		})
 		.unwrap();
@@ -49,12 +49,12 @@ pub fn spawn_thread<F, T>(name: String, stackSize: usize, f: F) -> JoinHandle<T>
 extern
 {
 	#[inline(always)]
-	pub fn current_maximum_threads_with_relative_thread_ids() -> c_ushort;
-	
-	pub fn set_relative_thread_id() -> c_ushort;
+	pub fn lemonrock_threading_support_currentMaximumThreadsWithRelativeThreadIds() -> c_ushort;
 	
 	#[inline(always)]
-	pub fn get_relative_thread_id() -> c_ushort;
+	pub fn lemonrock_threading_support_getRelativeThreadId() -> c_ushort;
+	
+	pub fn lemonrock_threading_support_setRelativeThreadId() -> c_ushort;
 }
 
 /// pthread_t is unsigned on all platforms apart from Android... go figure.
