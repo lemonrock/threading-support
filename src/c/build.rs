@@ -3,8 +3,14 @@
 
 
 extern crate gcc;
+use gcc::Config;
+
 
 fn main()
 {
-    gcc::compile_library("libthread-local-glue.a", &["src/thread-local-glue.c"]);
+	let mut config = Config::new();
+	config.flag("-Wall");
+	config.flag("-Werror");
+	config.file("src/build.c");
+	config.compile("libbuild.a");
 }
