@@ -11,24 +11,16 @@
 	
 	#define LEMONROCK_THREADLOCAL_BUILD_H
 	
-	#ifdef __cplusplus
-		extern "C" {
-	#endif
-
-
-
+	C_START
+	
+	
 			Hot extern inline unsigned short lemonrock_threading_support_currentMaximumThreadsWithRelativeThreadIds();
 
 			Hot extern inline unsigned short lemonrock_threading_support_getRelativeThreadId();
 
 			Cold extern unsigned short lemonrock_threading_support_setRelativeThreadId();
 	
-			
-			
-			
-	#ifdef __cplusplus
-		}
-	#endif
+		
+	C_END
 
 #endif
-		
